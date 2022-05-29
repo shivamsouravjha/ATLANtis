@@ -14,13 +14,13 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func CreateQuestionHandler(c *gin.Context) {
+func CreateFormHandler(c *gin.Context) {
 	defer sentry.Recover()
-	span := sentry.StartSpan(context.TODO(), "[GIN] CreateQuestionHandler", sentry.TransactionName("Create Question Handler"))
+	span := sentry.StartSpan(context.TODO(), "[GIN] AddFormHandler", sentry.TransactionName("Create Form Handler"))
 	defer span.Finish()
 
-	questionRequest := requests.Question{}
-	if err := c.ShouldBind(&questionRequest); err != nil {
+	formRequest := requests.Form{}
+	if err := c.ShouldBind(&formRequest); err != nil {
 		span.Status = sentry.SpanStatusFailedPrecondition
 		sentry.CaptureException(err)
 		c.JSON(422, utils.SendErrorResponse(err))
@@ -28,7 +28,7 @@ func CreateQuestionHandler(c *gin.Context) {
 	}
 	ctx := c.Request.Context()
 	resp := response.EventResponse{}
-	formID, err := helpers.CreateQuestion(ctx, &questionRequest, span.Context())
+	formID, err := helpers.CreateForm(ctx, &formRequest, span.Context())
 	if err != nil {
 		resp.Status = constants.API_FAILED_STATUS
 		resp.Message = err.Error()

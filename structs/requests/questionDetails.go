@@ -1,10 +1,13 @@
 package requests
 
 type Question struct {
-	Question     string `form:"question" binding:"required"`
-	Form         string `form:"form" binding:"required"`
-	ResponseType string `form:"responseType" binding:"required"`
-	Order        string `form:"orderNumber" binding:"required"`
+	Question        string `form:"question,omitempty" binding:"required"`
+	Form            string `form:"form,omitempty" binding:"required"`
+	ResponseType    string `form:"responseType,omitempty" binding:"required"`
+	Order           int16  `form:"orderNumber,omitempty" binding:"required"`
+	Option          string `form:"option,omitempty"`
+	MediaAndContact string `form:"mediaAndContact,omitempty"`
+	Feedback        string `form:"feedback,omitempty"`
 }
 
 type Form struct {

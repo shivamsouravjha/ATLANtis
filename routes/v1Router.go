@@ -16,5 +16,6 @@ func v1Routes(route *gin.RouterGroup) {
 	v1Routes := route.Group("/v1")
 	{
 		v1Routes.POST("/createForm", POST.CreateFormHandler)
+		v1Routes.POST("/createQuestion", POST.CreateQuestionHandler)
 	}
 }
