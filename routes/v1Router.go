@@ -1,6 +1,8 @@
 package routes
 
 import (
+	"Atlantis/controllers/POST"
+
 	"github.com/gin-gonic/gin"
 	"go.elastic.co/apm/module/apmgin"
 )
@@ -13,6 +15,6 @@ func v1Routes(route *gin.RouterGroup) {
 
 	v1Routes := route.Group("/v1")
 	{
-		v1Routes.GET("/healthCheck")
+		v1Routes.POST("/createForm", POST.CreateFormHandler)
 	}
 }

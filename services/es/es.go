@@ -2,14 +2,13 @@ package es
 
 import (
 	"Atlantis/config"
-	"Atlantis/services/logger"
 	"context"
+	"fmt"
 	"net/http"
 	"sync"
 
 	"github.com/olivere/elastic/v7"
 	"go.elastic.co/apm/module/apmelasticsearch"
-	"go.uber.org/zap"
 )
 
 var client *elastic.Client
@@ -21,15 +20,16 @@ func Init() *elastic.Client {
 		var err error
 		client, err = elastic.NewClient(elastic.SetURL(esURL), elastic.SetHttpClient(&http.Client{
 			Transport: apmelasticsearch.WrapRoundTripper(http.DefaultTransport),
-		}), elastic.SetSniff(false))
+		}), elastic.SetSniff(false), elastic.SetBasicAuth("elastic", "XLVSwKIpBLLwvD8qmqzsqXaD"), elastic.SetScheme("https"))
 		if err != nil {
 			panic(err.Error())
 		}
+		fmt.Println(config.Get().EsURL)
 		_, _, err = client.Ping(config.Get().EsURL).Do(context.Background())
 		if err != nil {
 			panic(err)
 		}
-		logger.Client().Info("es connected", zap.String("host", config.Get().EsURL))
+
 	})
 	return client
 }
