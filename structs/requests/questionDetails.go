@@ -19,24 +19,9 @@ type Form struct {
 //answer
 //response
 //form
-type UpdateRedisRequest struct {
-	HandleName string `form:"handleName"`
-	Status     int    `form:"status"`
-}
-
-type GetCreatorDetailsRequest struct {
-	HandleName string `form:"handleName" binding:"required"`
-}
-
-type HandleDetailsRequest struct {
-	HandleName string      `form:"handleName" binding:"required"`
-	UserId     interface{} `form:"userId"`
-}
-
-type HandleDetailsAdminRequest struct {
-	UserId interface{} `form:"userId"`
-}
-
-type UpdateAvatarRequest struct {
-	Email string `form:"userEmail" binding:"required"`
+type Response struct {
+	UserID     int64  `form:"userId" binding:"required"`
+	FormID     string `form:"formId" binding:"required"`
+	ResponseId string `form:"responseId,omitempty"`
+	Status     bool   `form:"status,omitempty"`
 }

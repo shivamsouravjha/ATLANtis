@@ -17,5 +17,7 @@ func v1Routes(route *gin.RouterGroup) {
 	{
 		v1Routes.POST("/createForm", POST.CreateFormHandler)
 		v1Routes.POST("/createQuestion", POST.CreateQuestionHandler)
+		v1Routes.POST("/createResponse", POST.CreateResponseHandler)
+		v1Routes.POST("/createAnswer", POST.CreateAnswerHandler)
 	}
 }
