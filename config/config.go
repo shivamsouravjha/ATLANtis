@@ -29,6 +29,9 @@ type Config struct {
 	AWSAccessKey         string
 	AWSSecretKey         string
 	JWT_SECRET           string
+	KafkaServer          string
+	KafkaGroupID         string
+	KafkaTopic           string
 }
 
 var config Config
@@ -78,6 +81,8 @@ func init() {
 	config.AWSAccessKey = os.Getenv("AWS_KEY")
 	config.AWSSecretKey = os.Getenv("AWS_SECRET")
 	config.JWT_SECRET = os.Getenv("JWT_SECRET")
+	config.KafkaServer = os.Getenv("KAFKA_SERVER")
+	config.KafkaGroupID = os.Getenv("KAFKA_GROUP_ID")
 }
 
 func Get() Config {

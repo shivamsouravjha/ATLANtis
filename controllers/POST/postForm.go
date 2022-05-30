@@ -1,9 +1,7 @@
 package POST
 
 import (
-	"Atlantis/constants"
 	helpers "Atlantis/helpers/es"
-	"Atlantis/services/logger"
 	"Atlantis/structs/requests"
 	"Atlantis/structs/response"
 	"Atlantis/utils"
@@ -26,16 +24,12 @@ func CreateFormHandler(c *gin.Context) {
 		c.JSON(422, utils.SendErrorResponse(err))
 		return
 	}
+
+	formID := utils.GeneratorUUID(11)
 	ctx := c.Request.Context()
 	resp := response.EventResponse{}
-	formID, err := helpers.CreateForm(ctx, &formRequest, span.Context())
-	if err != nil {
-		resp.Status = constants.API_FAILED_STATUS
-		resp.Message = err.Error()
-		logger.Client().Error(err.Error())
-		c.JSON(http.StatusInternalServerError, resp)
-		return
-	}
+	helpers.CreateForm(ctx, &formRequest, formID, span.Context())
+
 	resp.Status = "Success"
 	resp.Message = "Creator updated successfully"
 	resp.Data = formID

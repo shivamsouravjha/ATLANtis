@@ -1,9 +1,7 @@
 package POST
 
 import (
-	"Atlantis/constants"
 	helpers "Atlantis/helpers/es"
-	"Atlantis/services/logger"
 	"Atlantis/structs/requests"
 	"Atlantis/structs/response"
 	"Atlantis/utils"
@@ -14,13 +12,13 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func CreateResponseHandler(c *gin.Context) {
+func CreateAnswerHandler(c *gin.Context) {
 	defer sentry.Recover()
-	span := sentry.StartSpan(context.TODO(), "[GIN] AddResponseHandler", sentry.TransactionName("Create Response Handler"))
+	span := sentry.StartSpan(context.TODO(), "[GIN] AddAnswerHandler", sentry.TransactionName("Create Answer Handler"))
 	defer span.Finish()
 
-	responseRequest := requests.Response{}
-	if err := c.ShouldBind(&responseRequest); err != nil {
+	answerRequest := requests.Answer{}
+	if err := c.ShouldBind(&answerRequest); err != nil {
 		span.Status = sentry.SpanStatusFailedPrecondition
 		sentry.CaptureException(err)
 		c.JSON(422, utils.SendErrorResponse(err))
@@ -28,17 +26,18 @@ func CreateResponseHandler(c *gin.Context) {
 	}
 	ctx := c.Request.Context()
 	resp := response.EventResponse{}
-	formID, err := helpers.CreateResponse(ctx, &responseRequest, span.Context())
-	if err != nil {
-		resp.Status = constants.API_FAILED_STATUS
-		resp.Message = err.Error()
-		logger.Client().Error(err.Error())
-		c.JSON(http.StatusInternalServerError, resp)
-		return
+	var answerId string
+	if answerRequest.AnswerID != "" {
+		answerId = answerRequest.FormID
+	} else {
+		answerId = utils.GeneratorUUID(11)
 	}
+
+	helpers.CreateAnswer(ctx, &answerRequest, answerId, span.Context())
+
 	resp.Status = "Success"
 	resp.Message = "Creator updated successfully"
-	resp.Data = formID
+	resp.Data = answerId
 	span.Status = sentry.SpanStatusOK
 
 	c.JSON(http.StatusOK, resp)

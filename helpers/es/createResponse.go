@@ -11,14 +11,14 @@ import (
 	"github.com/olivere/elastic/v7"
 )
 
-func CreateResponse(ctx context.Context, ResponseData *requests.Response, sentryCtx context.Context) (string, error) {
+func CreateResponse(ctx context.Context, ResponseData *requests.Response, responseId string, sentryCtx context.Context) (string, error) {
 	defer sentry.Recover()
 	span := sentry.StartSpan(sentryCtx, "[DAO] AddResponse")
 	defer span.Finish()
 
 	if ResponseData.ResponseId != " " && ResponseData.Status {
 		dbSpan1 := sentry.StartSpan(span.Context(), "[DB] update responses")
-		multiMatchQuery, err := es.Client().Update().Index("responses").Id(ResponseData.ResponseId).Script(elastic.NewScriptInline(`ctx._source.Status = true`)).Do(ctx)
+		multiMatchQuery, err := es.Client().Update().Index("responses").Id(responseId).Script(elastic.NewScriptInline(`ctx._source.Status = true`)).Do(ctx)
 
 		dbSpan1.Finish()
 
@@ -33,7 +33,7 @@ func CreateResponse(ctx context.Context, ResponseData *requests.Response, sentry
 	} else {
 
 		dbSpan1 := sentry.StartSpan(span.Context(), "[DB] Insert into /responses")
-		multiMatchQuery, err := es.Client().Index().Index("responses").BodyJson(ResponseData).Do(ctx)
+		multiMatchQuery, err := es.Client().Index().Id(responseId).Index("responses").BodyJson(ResponseData).Do(ctx)
 		dbSpan1.Finish()
 
 		if err != nil {

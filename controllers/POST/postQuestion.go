@@ -1,9 +1,7 @@
 package POST
 
 import (
-	"Atlantis/constants"
 	helpers "Atlantis/helpers/es"
-	"Atlantis/services/logger"
 	"Atlantis/structs/requests"
 	"Atlantis/structs/response"
 	"Atlantis/utils"
@@ -28,17 +26,14 @@ func CreateQuestionHandler(c *gin.Context) {
 	}
 	ctx := c.Request.Context()
 	resp := response.EventResponse{}
-	formID, err := helpers.CreateQuestion(ctx, &questionRequest, span.Context())
-	if err != nil {
-		resp.Status = constants.API_FAILED_STATUS
-		resp.Message = err.Error()
-		logger.Client().Error(err.Error())
-		c.JSON(http.StatusInternalServerError, resp)
-		return
-	}
+
+	questionID := utils.GeneratorUUID(11)
+
+	helpers.CreateQuestion(ctx, &questionRequest, questionID, span.Context())
+
 	resp.Status = "Success"
 	resp.Message = "Creator updated successfully"
-	resp.Data = formID
+	resp.Data = questionID
 	span.Status = sentry.SpanStatusOK
 
 	c.JSON(http.StatusOK, resp)
