@@ -19,8 +19,8 @@ func CreateAnswerHandler(c *gin.Context) {
 	span := sentry.StartSpan(context.TODO(), "[GIN] AddAnswerHandler", sentry.TransactionName("Create Answer Handler"))
 	defer span.Finish()
 
-	formRequest := requests.Form{}
-	if err := c.ShouldBind(&formRequest); err != nil {
+	answerRequest := requests.Answer{}
+	if err := c.ShouldBind(&answerRequest); err != nil {
 		span.Status = sentry.SpanStatusFailedPrecondition
 		sentry.CaptureException(err)
 		c.JSON(422, utils.SendErrorResponse(err))
@@ -28,7 +28,7 @@ func CreateAnswerHandler(c *gin.Context) {
 	}
 	ctx := c.Request.Context()
 	resp := response.EventResponse{}
-	formID, err := helpers.CreateForm(ctx, &formRequest, span.Context())
+	formID, err := helpers.CreateAnswer(ctx, &answerRequest, span.Context())
 	if err != nil {
 		resp.Status = constants.API_FAILED_STATUS
 		resp.Message = err.Error()

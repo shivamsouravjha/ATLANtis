@@ -18,9 +18,7 @@ func CreateResponse(ctx context.Context, ResponseData *requests.Response, sentry
 
 	if ResponseData.ResponseId != " " && ResponseData.Status {
 		dbSpan1 := sentry.StartSpan(span.Context(), "[DB] update responses")
-		multiMatchQuery, err := es.Client().Update().Index("responses").Id(ResponseData.ResponseId).Script(elastic.NewScriptInline(`ctx._source.Status = true`)).
-			Upsert(map[string]interface{}{"retweets": 0}).
-			Do(ctx)
+		multiMatchQuery, err := es.Client().Update().Index("responses").Id(ResponseData.ResponseId).Script(elastic.NewScriptInline(`ctx._source.Status = true`)).Do(ctx)
 
 		dbSpan1.Finish()
 

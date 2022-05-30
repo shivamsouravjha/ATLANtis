@@ -25,3 +25,11 @@ type Response struct {
 	ResponseId string `form:"responseId,omitempty"`
 	Status     bool   `form:"status,omitempty"`
 }
+
+type Answer struct {
+	FormID     string   `form:"formId" binding:"required"`
+	ResponseId string   `form:"responseId"  binding:"required"`
+	Answer     []string `form:"answer" binding:"required"`
+	AnswerType string   `form:"answerType" binding:"required"`
+	AnswerID   string   `form:"answerId"`
+}
