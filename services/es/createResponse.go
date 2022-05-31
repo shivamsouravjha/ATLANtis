@@ -1,25 +1,29 @@
-package helpers
+package es
 
 import (
 	kafkaFunc "Atlantis/helpers/kafkaConsumer"
+	"Atlantis/structs"
 	"Atlantis/structs/requests"
 	"context"
-	"encoding/json"
-	"fmt"
 
 	"github.com/confluentinc/confluent-kafka-go/kafka"
 	"github.com/getsentry/sentry-go"
+	jsoniter "github.com/json-iterator/go"
 )
 
-func CreateAnswer(ctx context.Context, AnswerData *requests.Answer, sentryCtx context.Context) {
+func CreateResponse(ctx context.Context, ResponseData *requests.Response, isUpdate bool, sentryCtx context.Context) {
 	defer sentry.Recover()
-	span := sentry.StartSpan(sentryCtx, "[DAO] AddAnswer")
+	span := sentry.StartSpan(sentryCtx, "[DAO] AddResponse")
 	defer span.Finish()
 
 	kafkaClient := kafkaFunc.InitProducer()
-	topic := "Answers"
-	exampleBytes, err := json.Marshal(AnswerData)
-	fmt.Println(string(exampleBytes), err)
+	topic := "Responses"
+
+	data := structs.ResponseKafka{
+		Data:     ResponseData,
+		IsUpdate: true,
+	}
+	exampleBytes, _ := jsoniter.ConfigCompatibleWithStandardLibrary.Marshal(&data)
 
 	kafkaClient.Produce(&kafka.Message{
 		TopicPartition: kafka.TopicPartition{Topic: &topic, Partition: kafka.PartitionAny},
@@ -31,9 +35,9 @@ func CreateAnswer(ctx context.Context, AnswerData *requests.Answer, sentryCtx co
 	kafkaClient.Flush(10000)
 	kafkaClient.Close()
 
-	// if AnswerData.AnswerID != "" {
-	// 	dbSpan1 := sentry.StartSpan(span.Context(), "[DB] update answer")
-	// 	multiMatchQuery, err := es.Client().Update().Index("answers").Id(answerId).Doc(map[string]interface{}{"Answer": AnswerData.Answer}).Do(ctx)
+	// if ResponseData.ResponseId != " " && ResponseData.Status {
+	// 	dbSpan1 := sentry.StartSpan(span.Context(), "[DB] update responses")
+	// 	multiMatchQuery, err := es.Client().Update().Index("responses").Id(responseId).Script(elastic.NewScriptInline(`ctx._source.Status = true`)).Do(ctx)
 
 	// 	dbSpan1.Finish()
 
@@ -47,8 +51,8 @@ func CreateAnswer(ctx context.Context, AnswerData *requests.Answer, sentryCtx co
 	// 	return multiMatchQuery.Id, nil
 	// } else {
 
-	// 	dbSpan1 := sentry.StartSpan(span.Context(), "[DB] Insert into /answer")
-	// 	multiMatchQuery, err := es.Client().Index().Id(answerId).Index("answers").BodyJson(AnswerData).Do(ctx)
+	// 	dbSpan1 := sentry.StartSpan(span.Context(), "[DB] Insert into /responses")
+	// 	multiMatchQuery, err := es.Client().Index().Id(responseId).Index("responses").BodyJson(ResponseData).Do(ctx)
 	// 	dbSpan1.Finish()
 
 	// 	if err != nil {
@@ -60,4 +64,5 @@ func CreateAnswer(ctx context.Context, AnswerData *requests.Answer, sentryCtx co
 
 	// 	return multiMatchQuery.Id, nil
 	// }
+
 }

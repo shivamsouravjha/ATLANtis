@@ -1,14 +1,14 @@
-package helpers
+package es
 
 import (
 	kafkaFunc "Atlantis/helpers/kafkaConsumer"
+	"Atlantis/structs"
 	"Atlantis/structs/requests"
 	"context"
-	"encoding/json"
-	"fmt"
 
 	"github.com/confluentinc/confluent-kafka-go/kafka"
 	"github.com/getsentry/sentry-go"
+	jsoniter "github.com/json-iterator/go"
 )
 
 func CreateForm(ctx context.Context, FormData *requests.Form, sentryCtx context.Context) {
@@ -22,8 +22,13 @@ func CreateForm(ctx context.Context, FormData *requests.Form, sentryCtx context.
 
 	kafkaClient := kafkaFunc.InitProducer()
 	topic := "Forms"
-	exampleBytes, err := json.Marshal(FormData)
-	fmt.Println(string(exampleBytes), err)
+
+	data := structs.FormKafka{
+		Data:     FormData,
+		IsUpdate: false,
+	}
+
+	exampleBytes, _ := jsoniter.ConfigCompatibleWithStandardLibrary.Marshal(&data)
 
 	kafkaClient.Produce(&kafka.Message{
 		TopicPartition: kafka.TopicPartition{Topic: &topic, Partition: kafka.PartitionAny},

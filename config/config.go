@@ -35,6 +35,7 @@ type Config struct {
 	Username             string
 	Password             string
 	Protocol             string
+	Topic                string
 }
 
 var config Config
@@ -89,6 +90,7 @@ func init() {
 	config.Username = os.Getenv("sasl.username")
 	config.Protocol = os.Getenv("security.protocol")
 	config.Password = os.Getenv("sasl.password")
+	config.Topic = os.Getenv("topic")
 }
 
 func Get() Config {

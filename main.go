@@ -6,9 +6,9 @@ import (
 )
 
 func main() {
-	go utils.Listener("Froms")
+	go utils.Listener("Forms")
 	go utils.Listener("Questions")
 	go utils.Listener("Answers")
-	go utils.Listener("Froms")
+	go utils.Listener("Responses")
 	server.Init()
 }

@@ -1,14 +1,14 @@
-package helpers
+package es
 
 import (
 	kafkaFunc "Atlantis/helpers/kafkaConsumer"
+	"Atlantis/structs"
 	"Atlantis/structs/requests"
 	"context"
-	"encoding/json"
-	"fmt"
 
 	"github.com/confluentinc/confluent-kafka-go/kafka"
 	"github.com/getsentry/sentry-go"
+	jsoniter "github.com/json-iterator/go"
 )
 
 func CreateQuestion(ctx context.Context, QuestionData *requests.Question, sentryCtx context.Context) {
@@ -18,8 +18,13 @@ func CreateQuestion(ctx context.Context, QuestionData *requests.Question, sentry
 
 	kafkaClient := kafkaFunc.InitProducer()
 	topic := "Questions"
-	exampleBytes, err := json.Marshal(QuestionData)
-	fmt.Println(string(exampleBytes), err)
+
+	data := structs.QuestionKafka{
+		Data:     QuestionData,
+		IsUpdate: false,
+	}
+
+	exampleBytes, _ := jsoniter.ConfigCompatibleWithStandardLibrary.Marshal(&data)
 
 	kafkaClient.Produce(&kafka.Message{
 		TopicPartition: kafka.TopicPartition{Topic: &topic, Partition: kafka.PartitionAny},
@@ -28,7 +33,7 @@ func CreateQuestion(ctx context.Context, QuestionData *requests.Question, sentry
 	}, nil)
 
 	// Wait for all messages to be delivered
-	kafkaClient.Flush(10000)
+	kafkaClient.Flush(15000)
 	kafkaClient.Close()
 
 	// dbSpan1 := sentry.StartSpan(span.Context(), "[DB] Insert into /questions")

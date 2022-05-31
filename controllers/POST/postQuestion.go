@@ -1,7 +1,7 @@
 package POST
 
 import (
-	helpers "Atlantis/helpers/es"
+	"Atlantis/services/es"
 	"Atlantis/structs/requests"
 	"Atlantis/structs/response"
 	"Atlantis/utils"
@@ -29,7 +29,7 @@ func CreateQuestionHandler(c *gin.Context) {
 
 	questionRequest.QuestionID = utils.GeneratorUUID(11)
 
-	go helpers.CreateQuestion(ctx, &questionRequest, span.Context())
+	go es.CreateQuestion(ctx, &questionRequest, span.Context())
 
 	resp.Status = "Success"
 	resp.Message = "Creator updated successfully"

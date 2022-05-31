@@ -1,7 +1,7 @@
 package POST
 
 import (
-	helpers "Atlantis/helpers/es"
+	"Atlantis/services/es"
 	"Atlantis/structs/requests"
 	"Atlantis/structs/response"
 	"Atlantis/utils"
@@ -26,11 +26,13 @@ func CreateResponseHandler(c *gin.Context) {
 	}
 	ctx := c.Request.Context()
 	resp := response.EventResponse{}
+	isUpdate := false
 
-	if responseRequest.ResponseId != "" {
+	if responseRequest.ResponseId == "" {
 		responseRequest.ResponseId = utils.GeneratorUUID(11)
+		isUpdate = true
 	}
-	go helpers.CreateResponse(ctx, &responseRequest, span.Context())
+	go es.CreateResponse(ctx, &responseRequest, isUpdate, span.Context())
 
 	resp.Status = "Success"
 	resp.Message = "Creator updated successfully"

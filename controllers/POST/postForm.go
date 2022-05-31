@@ -1,7 +1,7 @@
 package POST
 
 import (
-	helpers "Atlantis/helpers/es"
+	"Atlantis/services/es"
 	"Atlantis/structs/requests"
 	"Atlantis/structs/response"
 	"Atlantis/utils"
@@ -28,7 +28,7 @@ func CreateFormHandler(c *gin.Context) {
 	formRequest.FormID = utils.GeneratorUUID(11)
 	ctx := c.Request.Context()
 	resp := response.EventResponse{}
-	go helpers.CreateForm(ctx, &formRequest, span.Context())
+	go es.CreateForm(ctx, &formRequest, span.Context())
 
 	resp.Status = "Success"
 	resp.Message = "Creator updated successfully"

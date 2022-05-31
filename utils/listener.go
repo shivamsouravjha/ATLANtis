@@ -1,6 +1,7 @@
 package utils
 
 import (
+	helpers "Atlantis/helpers/es"
 	kafkaFunc "Atlantis/helpers/kafkaConsumer"
 	"fmt"
 	"os"
@@ -28,11 +29,13 @@ func Listener(topic string) {
 				// Errors are informational and automatically handled by the consumer
 				continue
 			}
+
+			helpers.EsUploader(string(ev.Key), ev.Value)
 			fmt.Printf("Consumed event from topic %s: key = %-10s value = %s\n",
 				*ev.TopicPartition.Topic, string(ev.Key), string(ev.Value))
 		}
 	}
 
-	c.Close()
+	defer c.Close()
 
 }
