@@ -29,7 +29,7 @@ func CreateQuestionHandler(c *gin.Context) {
 
 	questionID := utils.GeneratorUUID(11)
 
-	helpers.CreateQuestion(ctx, &questionRequest, questionID, span.Context())
+	go helpers.CreateQuestion(ctx, &questionRequest, questionID, span.Context())
 
 	resp.Status = "Success"
 	resp.Message = "Creator updated successfully"

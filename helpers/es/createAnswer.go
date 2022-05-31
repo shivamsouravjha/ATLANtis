@@ -1,47 +1,63 @@
 package helpers
 
 import (
-	"Atlantis/services/es"
-	"Atlantis/services/logger"
+	kafkaFunc "Atlantis/helpers/kafkaConsumer"
 	"Atlantis/structs/requests"
 	"context"
+	"encoding/json"
 	"fmt"
 
+	"github.com/confluentinc/confluent-kafka-go/kafka"
 	"github.com/getsentry/sentry-go"
 )
 
-func CreateAnswer(ctx context.Context, AnswerData *requests.Answer, answerId string, sentryCtx context.Context) (string, error) {
+func CreateAnswer(ctx context.Context, AnswerData *requests.Answer, answerId string, sentryCtx context.Context) {
 	defer sentry.Recover()
 	span := sentry.StartSpan(sentryCtx, "[DAO] AddAnswer")
 	defer span.Finish()
 
-	if AnswerData.AnswerID != "" {
-		dbSpan1 := sentry.StartSpan(span.Context(), "[DB] update answer")
-		multiMatchQuery, err := es.Client().Update().Index("answers").Id(answerId).Doc(map[string]interface{}{"Answer": AnswerData.Answer}).Do(ctx)
+	kafkaClient := kafkaFunc.InitProducer()
+	topic := "Forms"
+	exampleBytes, err := json.Marshal(AnswerData)
+	fmt.Println(string(exampleBytes), err)
 
-		dbSpan1.Finish()
+	kafkaClient.Produce(&kafka.Message{
+		TopicPartition: kafka.TopicPartition{Topic: &topic, Partition: kafka.PartitionAny},
+		Key:            []byte(answerId),
+		Value:          []byte(exampleBytes),
+	}, nil)
 
-		if err != nil {
-			fmt.Println(err)
-			sentry.CaptureException(err)
-			logger.Client().Error(err.Error())
-			return "null", err
-		}
+	// Wait for all messages to be delivered
+	kafkaClient.Flush(10000)
+	kafkaClient.Close()
 
-		return multiMatchQuery.Id, nil
-	} else {
+	// if AnswerData.AnswerID != "" {
+	// 	dbSpan1 := sentry.StartSpan(span.Context(), "[DB] update answer")
+	// 	multiMatchQuery, err := es.Client().Update().Index("answers").Id(answerId).Doc(map[string]interface{}{"Answer": AnswerData.Answer}).Do(ctx)
 
-		dbSpan1 := sentry.StartSpan(span.Context(), "[DB] Insert into /answer")
-		multiMatchQuery, err := es.Client().Index().Id(answerId).Index("answers").BodyJson(AnswerData).Do(ctx)
-		dbSpan1.Finish()
+	// 	dbSpan1.Finish()
 
-		if err != nil {
-			fmt.Println(err)
-			sentry.CaptureException(err)
-			logger.Client().Error(err.Error())
-			return "null", err
-		}
+	// 	if err != nil {
+	// 		fmt.Println(err)
+	// 		sentry.CaptureException(err)
+	// 		logger.Client().Error(err.Error())
+	// 		return "null", err
+	// 	}
 
-		return multiMatchQuery.Id, nil
-	}
+	// 	return multiMatchQuery.Id, nil
+	// } else {
+
+	// 	dbSpan1 := sentry.StartSpan(span.Context(), "[DB] Insert into /answer")
+	// 	multiMatchQuery, err := es.Client().Index().Id(answerId).Index("answers").BodyJson(AnswerData).Do(ctx)
+	// 	dbSpan1.Finish()
+
+	// 	if err != nil {
+	// 		fmt.Println(err)
+	// 		sentry.CaptureException(err)
+	// 		logger.Client().Error(err.Error())
+	// 		return "null", err
+	// 	}
+
+	// 	return multiMatchQuery.Id, nil
+	// }
 }

@@ -32,6 +32,10 @@ type Config struct {
 	KafkaServer          string
 	KafkaGroupID         string
 	KafkaTopic           string
+	Mechanisms           string
+	Username             string
+	Password             string
+	Protocol             string
 }
 
 var config Config
@@ -83,6 +87,10 @@ func init() {
 	config.JWT_SECRET = os.Getenv("JWT_SECRET")
 	config.KafkaServer = os.Getenv("KAFKA_SERVER")
 	config.KafkaGroupID = os.Getenv("KAFKA_GROUP_ID")
+	config.Mechanisms = os.Getenv("sasl.mechanisms")
+	config.Username = os.Getenv("sasl.username")
+	config.Protocol = os.Getenv("security.protocol")
+	config.Password = os.Getenv("sasl.password")
 }
 
 func Get() Config {

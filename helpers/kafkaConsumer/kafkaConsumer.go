@@ -1,4 +1,4 @@
-package kafkaConsumer
+package kafkaFunc
 
 import (
 	"Atlantis/config"
@@ -8,8 +8,7 @@ import (
 	"github.com/confluentinc/confluent-kafka-go/kafka"
 )
 
-var client *kafka.Consumer
-var err error
+var clientConsumer *kafka.Consumer
 
 func NewConsumerClient() (*kafka.Consumer, error) {
 	consumer, err := kafka.NewConsumer(&kafka.ConfigMap{
@@ -21,17 +20,17 @@ func NewConsumerClient() (*kafka.Consumer, error) {
 }
 
 func Init(topicName string) *kafka.Consumer {
-	client, err = NewConsumerClient()
+	clientConsumer, err = NewConsumerClient()
 	if err != nil {
 		fmt.Printf("Failed to create consumer: %s", err)
 		os.Exit(1)
 	}
 
-	subscriptionError := client.SubscribeTopics([]string{topicName}, nil)
+	subscriptionError := clientConsumer.SubscribeTopics([]string{topicName}, nil)
 	if subscriptionError != nil {
 		fmt.Printf("Failed to create consumer: %s", subscriptionError)
 		os.Exit(1)
 	}
 
-	return client
+	return clientConsumer
 }

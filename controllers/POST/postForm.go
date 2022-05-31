@@ -28,7 +28,7 @@ func CreateFormHandler(c *gin.Context) {
 	formID := utils.GeneratorUUID(11)
 	ctx := c.Request.Context()
 	resp := response.EventResponse{}
-	helpers.CreateForm(ctx, &formRequest, formID, span.Context())
+	go helpers.CreateForm(ctx, &formRequest, formID, span.Context())
 
 	resp.Status = "Success"
 	resp.Message = "Creator updated successfully"
