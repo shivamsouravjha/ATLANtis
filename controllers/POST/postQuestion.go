@@ -27,13 +27,13 @@ func CreateQuestionHandler(c *gin.Context) {
 	ctx := c.Request.Context()
 	resp := response.EventResponse{}
 
-	questionID := utils.GeneratorUUID(11)
+	questionRequest.QuestionID = utils.GeneratorUUID(11)
 
-	go helpers.CreateQuestion(ctx, &questionRequest, questionID, span.Context())
+	go helpers.CreateQuestion(ctx, &questionRequest, span.Context())
 
 	resp.Status = "Success"
 	resp.Message = "Creator updated successfully"
-	resp.Data = questionID
+	resp.Data = questionRequest.QuestionID
 	span.Status = sentry.SpanStatusOK
 
 	c.JSON(http.StatusOK, resp)

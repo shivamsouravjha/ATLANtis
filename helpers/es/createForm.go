@@ -11,7 +11,7 @@ import (
 	"github.com/getsentry/sentry-go"
 )
 
-func CreateForm(ctx context.Context, FormData *requests.Form, formID string, sentryCtx context.Context) {
+func CreateForm(ctx context.Context, FormData *requests.Form, sentryCtx context.Context) {
 	defer sentry.Recover()
 	span := sentry.StartSpan(sentryCtx, "[DAO] AddForm")
 	defer span.Finish()
@@ -27,7 +27,7 @@ func CreateForm(ctx context.Context, FormData *requests.Form, formID string, sen
 
 	kafkaClient.Produce(&kafka.Message{
 		TopicPartition: kafka.TopicPartition{Topic: &topic, Partition: kafka.PartitionAny},
-		Key:            []byte(formID),
+		Key:            []byte(topic),
 		Value:          []byte(exampleBytes),
 	}, nil)
 

@@ -1,6 +1,7 @@
 package requests
 
 type Question struct {
+	QuestionID      string `form:"questionId,omitempty"`
 	Question        string `form:"question,omitempty" binding:"required"`
 	Form            string `form:"form,omitempty" binding:"required"`
 	ResponseType    string `form:"responseType,omitempty" binding:"required"`
@@ -13,6 +14,7 @@ type Question struct {
 type Form struct {
 	UserID int64  `form:"userId" binding:"required"`
 	Name   string `form:"formName"`
+	FormID string `form:"formId"`
 }
 
 //question

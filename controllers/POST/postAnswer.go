@@ -26,18 +26,16 @@ func CreateAnswerHandler(c *gin.Context) {
 	}
 	ctx := c.Request.Context()
 	resp := response.EventResponse{}
-	var answerId string
-	if answerRequest.AnswerID != "" {
-		answerId = answerRequest.FormID
-	} else {
-		answerId = utils.GeneratorUUID(11)
+
+	if answerRequest.AnswerID == "" {
+		answerRequest.FormID = utils.GeneratorUUID(11)
 	}
 
-	helpers.CreateAnswer(ctx, &answerRequest, answerId, span.Context())
+	go helpers.CreateAnswer(ctx, &answerRequest, span.Context())
 
 	resp.Status = "Success"
 	resp.Message = "Creator updated successfully"
-	resp.Data = answerId
+	resp.Data = answerRequest.FormID
 	span.Status = sentry.SpanStatusOK
 
 	c.JSON(http.StatusOK, resp)

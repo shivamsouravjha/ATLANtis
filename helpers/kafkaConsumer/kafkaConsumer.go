@@ -10,17 +10,21 @@ import (
 
 var clientConsumer *kafka.Consumer
 
-func NewConsumerClient() (*kafka.Consumer, error) {
+func NewConsumerClient(topicName string) (*kafka.Consumer, error) {
 	consumer, err := kafka.NewConsumer(&kafka.ConfigMap{
 		"bootstrap.servers": config.Get().KafkaServer,
-		"group.id":          config.Get().KafkaGroupID,
+		"group.id":          topicName,
 		"auto.offset.reset": "earliest",
+		"sasl.mechanisms":   config.Get().Mechanisms,
+		"security.protocol": config.Get().Protocol,
+		"sasl.username":     config.Get().Username,
+		"sasl.password":     config.Get().Password,
 	})
 	return consumer, err
 }
 
-func Init(topicName string) *kafka.Consumer {
-	clientConsumer, err = NewConsumerClient()
+func InitConsumer(topicName string) *kafka.Consumer {
+	clientConsumer, err = NewConsumerClient(topicName)
 	if err != nil {
 		fmt.Printf("Failed to create consumer: %s", err)
 		os.Exit(1)

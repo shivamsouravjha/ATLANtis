@@ -11,7 +11,7 @@ import (
 	"github.com/getsentry/sentry-go"
 )
 
-func CreateQuestion(ctx context.Context, QuestionData *requests.Question, questionID string, sentryCtx context.Context) (string, error) {
+func CreateQuestion(ctx context.Context, QuestionData *requests.Question, sentryCtx context.Context) {
 	defer sentry.Recover()
 	span := sentry.StartSpan(sentryCtx, "[DAO] AddQuestion")
 	defer span.Finish()
@@ -23,7 +23,7 @@ func CreateQuestion(ctx context.Context, QuestionData *requests.Question, questi
 
 	kafkaClient.Produce(&kafka.Message{
 		TopicPartition: kafka.TopicPartition{Topic: &topic, Partition: kafka.PartitionAny},
-		Key:            []byte(questionID),
+		Key:            []byte(topic),
 		Value:          []byte(exampleBytes),
 	}, nil)
 
@@ -41,5 +41,4 @@ func CreateQuestion(ctx context.Context, QuestionData *requests.Question, questi
 	// 	return "null", err
 	// }
 
-	return questionID, nil
 }

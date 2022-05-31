@@ -11,19 +11,19 @@ import (
 	"github.com/getsentry/sentry-go"
 )
 
-func CreateAnswer(ctx context.Context, AnswerData *requests.Answer, answerId string, sentryCtx context.Context) {
+func CreateAnswer(ctx context.Context, AnswerData *requests.Answer, sentryCtx context.Context) {
 	defer sentry.Recover()
 	span := sentry.StartSpan(sentryCtx, "[DAO] AddAnswer")
 	defer span.Finish()
 
 	kafkaClient := kafkaFunc.InitProducer()
-	topic := "Forms"
+	topic := "Answers"
 	exampleBytes, err := json.Marshal(AnswerData)
 	fmt.Println(string(exampleBytes), err)
 
 	kafkaClient.Produce(&kafka.Message{
 		TopicPartition: kafka.TopicPartition{Topic: &topic, Partition: kafka.PartitionAny},
-		Key:            []byte(answerId),
+		Key:            []byte(topic),
 		Value:          []byte(exampleBytes),
 	}, nil)
 

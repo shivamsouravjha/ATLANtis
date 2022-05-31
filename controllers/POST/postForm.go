@@ -25,14 +25,14 @@ func CreateFormHandler(c *gin.Context) {
 		return
 	}
 
-	formID := utils.GeneratorUUID(11)
+	formRequest.FormID = utils.GeneratorUUID(11)
 	ctx := c.Request.Context()
 	resp := response.EventResponse{}
-	go helpers.CreateForm(ctx, &formRequest, formID, span.Context())
+	go helpers.CreateForm(ctx, &formRequest, span.Context())
 
 	resp.Status = "Success"
 	resp.Message = "Creator updated successfully"
-	resp.Data = formID
+	resp.Data = formRequest.FormID
 	span.Status = sentry.SpanStatusOK
 
 	c.JSON(http.StatusOK, resp)
