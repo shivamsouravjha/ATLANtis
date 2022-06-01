@@ -13,7 +13,7 @@ import (
 )
 
 func EsUploader(topic string, data []byte) {
-
+	fmt.Println(topic)
 	if topic == "Answers" {
 		var input structs.AnswerKafka
 		fmt.Println("vdd")
@@ -83,7 +83,8 @@ func EsUploader(topic string, data []byte) {
 		json := jsoniter.ConfigCompatibleWithStandardLibrary
 		json.Unmarshal(data, &input)
 		fmt.Println(input.IsUpdate) // if AnswerData.AnswerID != "" {
-		_, err := es.Client().Index().Id(input.Data.QuestionID).Index("questions").BodyJson(input.Data).Do(context.Background())
+		erd, err := es.Client().Index().Id(input.Data.QuestionID).Index("questions").BodyJson(input.Data).Do(context.Background())
+		fmt.Println(erd.Result)
 		if err != nil {
 			fmt.Println(err)
 			return

@@ -5,6 +5,7 @@ import (
 	"Atlantis/structs"
 	"Atlantis/structs/requests"
 	"context"
+	"fmt"
 
 	"github.com/confluentinc/confluent-kafka-go/kafka"
 	"github.com/getsentry/sentry-go"
@@ -28,8 +29,8 @@ func CreateForm(ctx context.Context, FormData *requests.Form, sentryCtx context.
 		IsUpdate: false,
 	}
 
-	exampleBytes, _ := jsoniter.ConfigCompatibleWithStandardLibrary.Marshal(&data)
-
+	exampleBytes, err := jsoniter.ConfigCompatibleWithStandardLibrary.Marshal(&data)
+	fmt.Println(err)
 	kafkaClient.Produce(&kafka.Message{
 		TopicPartition: kafka.TopicPartition{Topic: &topic, Partition: kafka.PartitionAny},
 		Key:            []byte(topic),

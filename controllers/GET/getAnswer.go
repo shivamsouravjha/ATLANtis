@@ -1,4 +1,4 @@
-package POST
+package GET
 
 import (
 	"Atlantis/services/es"
@@ -12,7 +12,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func CreateAnswerHandler(c *gin.Context) {
+func GetAnswerHandler(c *gin.Context) {
 	defer sentry.Recover()
 	span := sentry.StartSpan(context.TODO(), "[GIN] AddAnswerHandler", sentry.TransactionName("Create Answer Handler"))
 	defer span.Finish()
@@ -25,7 +25,7 @@ func CreateAnswerHandler(c *gin.Context) {
 		return
 	}
 	ctx := c.Request.Context()
-	resp := response.EventResponse{}
+	resp := response.AnswerResponse{}
 	isUpdate := true
 	if answerRequest.AnswerID == "" {
 		answerRequest.AnswerID = utils.GeneratorUUID(11)
@@ -36,7 +36,7 @@ func CreateAnswerHandler(c *gin.Context) {
 
 	resp.Status = "Success"
 	resp.Message = "Creator updated successfully"
-	resp.Data = answerRequest.FormID
+	resp.Data = answerRequest
 	span.Status = sentry.SpanStatusOK
 
 	c.JSON(http.StatusOK, resp)

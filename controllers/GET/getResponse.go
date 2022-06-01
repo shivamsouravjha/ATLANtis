@@ -1,7 +1,7 @@
-package POST
+package GET
 
 import (
-	"Atlantis/services/es"
+	helpers "Atlantis/helpers/es"
 	"Atlantis/structs/requests"
 	"Atlantis/structs/response"
 	"Atlantis/utils"
@@ -12,12 +12,12 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func CreateResponseHandler(c *gin.Context) {
+func GetResponseHandler(c *gin.Context) {
 	defer sentry.Recover()
 	span := sentry.StartSpan(context.TODO(), "[GIN] AddResponseHandler", sentry.TransactionName("Create Response Handler"))
 	defer span.Finish()
 
-	responseRequest := requests.Response{}
+	responseRequest := requests.GetResponse{}
 	if err := c.ShouldBind(&responseRequest); err != nil {
 		span.Status = sentry.SpanStatusFailedPrecondition
 		sentry.CaptureException(err)
@@ -25,18 +25,19 @@ func CreateResponseHandler(c *gin.Context) {
 		return
 	}
 	ctx := c.Request.Context()
-	resp := response.EventResponse{}
+	resp := response.RespResponse{}
 	isUpdate := true
 
-	if responseRequest.ResponseId == "" {
-		responseRequest.ResponseId = utils.GeneratorUUID(11)
-		isUpdate = false
+	responses, err := helpers.GetResponse(ctx, &responseRequest, isUpdate, span.Context())
+	if err != nil {
+		resp.Status = "Failed"
+		resp.Message = err.Error()
+		c.JSON(http.StatusInternalServerError, resp)
+		return
 	}
-	go es.CreateResponse(ctx, &responseRequest, isUpdate, span.Context())
-
 	resp.Status = "Success"
 	resp.Message = "Creator updated successfully"
-	resp.Data = responseRequest.ResponseId
+	resp.Data = responses
 	span.Status = sentry.SpanStatusOK
 
 	c.JSON(http.StatusOK, resp)

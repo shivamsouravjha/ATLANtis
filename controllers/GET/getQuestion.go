@@ -1,4 +1,4 @@
-package POST
+package GET
 
 import (
 	"Atlantis/services/es"
@@ -12,31 +12,28 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func CreateAnswerHandler(c *gin.Context) {
+func GetQuestionHandler(c *gin.Context) {
 	defer sentry.Recover()
-	span := sentry.StartSpan(context.TODO(), "[GIN] AddAnswerHandler", sentry.TransactionName("Create Answer Handler"))
+	span := sentry.StartSpan(context.TODO(), "[GIN] CreateQuestionHandler", sentry.TransactionName("Create Question Handler"))
 	defer span.Finish()
 
-	answerRequest := requests.Answer{}
-	if err := c.ShouldBind(&answerRequest); err != nil {
+	questionRequest := requests.Question{}
+	if err := c.ShouldBind(&questionRequest); err != nil {
 		span.Status = sentry.SpanStatusFailedPrecondition
 		sentry.CaptureException(err)
 		c.JSON(422, utils.SendErrorResponse(err))
 		return
 	}
 	ctx := c.Request.Context()
-	resp := response.EventResponse{}
-	isUpdate := true
-	if answerRequest.AnswerID == "" {
-		answerRequest.AnswerID = utils.GeneratorUUID(11)
-		isUpdate = false
-	}
+	resp := response.QuestionResponse{}
 
-	go es.CreateAnswer(ctx, &answerRequest, isUpdate, span.Context())
+	questionRequest.QuestionID = utils.GeneratorUUID(11)
+
+	go es.CreateQuestion(ctx, &questionRequest, span.Context())
 
 	resp.Status = "Success"
 	resp.Message = "Creator updated successfully"
-	resp.Data = answerRequest.FormID
+	resp.Data = questionRequest
 	span.Status = sentry.SpanStatusOK
 
 	c.JSON(http.StatusOK, resp)
