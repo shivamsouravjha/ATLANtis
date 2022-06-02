@@ -44,4 +44,5 @@ type Answer struct {
 	Answer     []string `json:"answer" binding:"required"`
 	AnswerType string   `json:"answerType" binding:"required"`
 	AnswerID   string   `json:"answerId"`
+	QuestionID string   `json:"questionId" binding:"required"`
 }

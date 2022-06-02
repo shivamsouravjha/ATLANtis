@@ -38,5 +38,10 @@ type Form struct {
 }
 type Response struct {
 	requests.Response
-	Answer []requests.Answer
+	QandA []UnitResponse
+}
+
+type UnitResponse struct {
+	Question requests.Question
+	Answer   requests.Answer
 }

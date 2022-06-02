@@ -37,9 +37,12 @@ func GetResponse(ctx context.Context, ResponseData *requests.GetResponse, isUpda
 		}
 	}
 
+	questionsAnswer := make(map[string]requests.Answer)
+	unitQuestionsAnswer := response.UnitResponse{}
+
 	dbSpan2 := sentry.StartSpan(span.Context(), "[DB] Insert into /forms")
 	res2, err := es.Client().Search().Index("answers").SearchSource(elastic.NewSearchSource().Query(elastic.NewMatchQuery("responseId", ResponseData.ResponseId)).Size(1000)).Size(1000).Do(ctx)
-	rescfg, _ := json.Marshal(elastic.NewSearchSource().Query(elastic.NewMatchQuery("answerId", "sJeoD4EBP9dta9N7JaUi")).Size(1000))
+	rescfg, _ := json.Marshal(elastic.NewSearchSource().Query(elastic.NewMatchQuery("responseId", ResponseData.ResponseId)).Size(1000))
 	fmt.Println(string(rescfg))
 	dbSpan2.Finish()
 
@@ -48,19 +51,47 @@ func GetResponse(ctx context.Context, ResponseData *requests.GetResponse, isUpda
 		logger.Client().Error(err.Error())
 		return response.Response{}, err
 	}
-	var data2 []requests.Answer
+
 	var temp requests.Answer
 
 	if res2 != nil {
 		for _, s := range res2.Hits.Hits {
 			jsoniter.ConfigCompatibleWithStandardLibrary.Unmarshal(s.Source, &temp)
-			data2 = append(data2, temp)
+			fmt.Println(temp.AnswerID)
+			questionsAnswer[temp.QuestionID] = temp
+		}
+	}
+
+	dbSpan3 := sentry.StartSpan(span.Context(), "[DB] Insert into /forms")
+	res3, err := es.Client().Search().Index("questions").SearchSource(elastic.NewSearchSource().Query(elastic.NewMatchQuery("form", data1.FormID))).Do(ctx)
+	rescfg, _ = json.Marshal(elastic.NewSearchSource().Query(elastic.NewMatchQuery("form", temp.FormID)))
+	fmt.Println(string(rescfg))
+	dbSpan3.Finish()
+
+	if err != nil {
+		sentry.CaptureException(err)
+		logger.Client().Error(err.Error())
+		return response.Response{}, err
+	}
+	var temp2 requests.Question
+
+	resp := make([]response.UnitResponse, 0)
+
+	if res3 != nil {
+		for _, s := range res2.Hits.Hits {
+			jsoniter.ConfigCompatibleWithStandardLibrary.Unmarshal(s.Source, &temp2)
+			fmt.Println(temp2)
+			unitQuestionsAnswer = response.UnitResponse{
+				Question: temp2,
+				Answer:   questionsAnswer[temp2.QuestionID],
+			}
+			resp = append(resp, unitQuestionsAnswer)
 		}
 	}
 
 	data := response.Response{
 		Response: data1,
-		Answer:   data2,
+		QandA:    resp,
 	}
 	return data, nil
 
