@@ -32,18 +32,7 @@ func CreateQuestion(ctx context.Context, QuestionData *requests.Question, sentry
 		Value:          []byte(exampleBytes),
 	}, nil)
 
-	// Wait for all messages to be delivered
 	kafkaClient.Flush(15000)
 	kafkaClient.Close()
-
-	// dbSpan1 := sentry.StartSpan(span.Context(), "[DB] Insert into /questions")
-	// QuestionInsert, err := es.Client().Index().Id(questionID).Index("questions").BodyJson(decodedStr).Do(ctx)
-	// dbSpan1.Finish()
-
-	// if err != nil {
-	// 	sentry.CaptureException(err)
-	// 	logger.Client().Error(err.Error())
-	// 	return "null", err
-	// }
 
 }

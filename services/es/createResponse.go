@@ -31,38 +31,7 @@ func CreateResponse(ctx context.Context, ResponseData *requests.Response, isUpda
 		Value:          []byte(exampleBytes),
 	}, nil)
 
-	// Wait for all messages to be delivered
 	kafkaClient.Flush(10000)
 	kafkaClient.Close()
-
-	// if ResponseData.ResponseId != " " && ResponseData.Status {
-	// 	dbSpan1 := sentry.StartSpan(span.Context(), "[DB] update responses")
-	// 	multiMatchQuery, err := es.Client().Update().Index("responses").Id(responseId).Script(elastic.NewScriptInline(`ctx._source.Status = true`)).Do(ctx)
-
-	// 	dbSpan1.Finish()
-
-	// 	if err != nil {
-	// 		fmt.Println(err)
-	// 		sentry.CaptureException(err)
-	// 		logger.Client().Error(err.Error())
-	// 		return "null", err
-	// 	}
-
-	// 	return multiMatchQuery.Id, nil
-	// } else {
-
-	// 	dbSpan1 := sentry.StartSpan(span.Context(), "[DB] Insert into /responses")
-	// 	multiMatchQuery, err := es.Client().Index().Id(responseId).Index("responses").BodyJson(ResponseData).Do(ctx)
-	// 	dbSpan1.Finish()
-
-	// 	if err != nil {
-	// 		fmt.Println(err)
-	// 		sentry.CaptureException(err)
-	// 		logger.Client().Error(err.Error())
-	// 		return "null", err
-	// 	}
-
-	// 	return multiMatchQuery.Id, nil
-	// }
 
 }

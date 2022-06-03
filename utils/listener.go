@@ -16,7 +16,6 @@ func Listener(topic string) {
 	sigchan := make(chan os.Signal, 1)
 	signal.Notify(sigchan, syscall.SIGINT, syscall.SIGTERM)
 
-	// Process messages
 	run := true
 	for run {
 		select {
@@ -26,7 +25,6 @@ func Listener(topic string) {
 		default:
 			ev, err := c.ReadMessage(100 * time.Millisecond)
 			if err != nil {
-				// Errors are informational and automatically handled by the consumer
 				continue
 			}
 
