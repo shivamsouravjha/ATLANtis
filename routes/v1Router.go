@@ -20,9 +20,8 @@ func v1Routes(route *gin.RouterGroup) {
 		v1Routes.POST("/createResponse", POST.CreateResponseHandler)
 		v1Routes.POST("/createAnswer", POST.CreateAnswerHandler)
 		v1Routes.GET("/getForm", GET.GetFormHandler)
-		v1Routes.GET("/createQuestion", GET.GetQuestionHandler)
+		v1Routes.GET("/getAny", GET.GetAnyHandler)
 		v1Routes.GET("/getResponse", GET.GetResponseHandler)
-		v1Routes.GET("/createAnswer", GET.GetAnswerHandler)
 
 	}
 }

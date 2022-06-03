@@ -13,3 +13,9 @@ var INVALID_TOKEN_RESPONSE = map[string]interface{}{
 	"status":  ApiFailStatus,
 	"message": "Invalid or No Token",
 }
+var IndexElasticSearch = map[string]string{
+	"A": "forms",
+	"B": "responses",
+	"C": "answers",
+	"D": "questions",
+}

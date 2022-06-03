@@ -17,6 +17,11 @@ type RespResponse struct {
 	Message string   `json:"message"`
 	Data    Response `json:"data"`
 }
+type AnyResponse struct {
+	Status  string        `json:"status"`
+	Message string        `json:"message"`
+	Data    []interface{} `json:"data"`
+}
 type FormResponse struct {
 	Status  string `json:"status"`
 	Message string `json:"message"`

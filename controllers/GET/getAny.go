@@ -1,7 +1,7 @@
 package GET
 
 import (
-	"Atlantis/services/es"
+	helpers "Atlantis/helpers/es"
 	"Atlantis/structs/requests"
 	"Atlantis/structs/response"
 	"Atlantis/utils"
@@ -12,31 +12,33 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func GetAnswerHandler(c *gin.Context) {
+func GetAnyHandler(c *gin.Context) {
 	defer sentry.Recover()
-	span := sentry.StartSpan(context.TODO(), "[GIN] AddAnswerHandler", sentry.TransactionName("Create Answer Handler"))
+	span := sentry.StartSpan(context.TODO(), "[GIN] AddFormHandler", sentry.TransactionName("Create Form Handler"))
 	defer span.Finish()
 
-	answerRequest := requests.Answer{}
-	if err := c.ShouldBind(&answerRequest); err != nil {
+	formRequest := requests.AnyHandler{}
+	if err := c.ShouldBind(&formRequest); err != nil {
 		span.Status = sentry.SpanStatusFailedPrecondition
 		sentry.CaptureException(err)
 		c.JSON(422, utils.SendErrorResponse(err))
 		return
 	}
-	ctx := c.Request.Context()
-	resp := response.AnswerResponse{}
-	isUpdate := true
-	if answerRequest.AnswerID == "" {
-		answerRequest.AnswerID = utils.GeneratorUUID(11)
-		isUpdate = false
-	}
 
-	go es.CreateAnswer(ctx, &answerRequest, isUpdate, span.Context())
+	ctx := c.Request.Context()
+	resp := response.AnyResponse{}
+
+	response, err := helpers.GetAny(ctx, &formRequest, span.Context())
+	if err != nil {
+		resp.Status = "Failed"
+		resp.Message = err.Error()
+		c.JSON(http.StatusInternalServerError, resp)
+		return
+	}
 
 	resp.Status = "Success"
 	resp.Message = "Creator updated successfully"
-	resp.Data = answerRequest
+	resp.Data = response
 	span.Status = sentry.SpanStatusOK
 
 	c.JSON(http.StatusOK, resp)

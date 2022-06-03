@@ -20,6 +20,12 @@ type GetQuestion struct {
 	QuestionID string `json:"questionId" binding:"required"`
 }
 
+type AnyHandler struct {
+	Index string `json:"index" binding:"required"`
+	Param string `json:"param" binding:"required"`
+	Value string `json:"value" binding:"required"`
+}
+
 type GetForm struct {
 	FormID string `json:"formId" binding:"required"`
 }
