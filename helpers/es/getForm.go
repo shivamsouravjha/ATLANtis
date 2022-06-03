@@ -17,10 +17,10 @@ import (
 
 func GetForm(ctx context.Context, FormData *requests.GetForm, sentryCtx context.Context) (response.Form, error) {
 	defer sentry.Recover()
-	span := sentry.StartSpan(sentryCtx, "[DAO] AddForm")
+	span := sentry.StartSpan(sentryCtx, "[DAO] GetForm")
 	defer span.Finish()
 
-	dbSpan1 := sentry.StartSpan(span.Context(), "[DB] Insert into /forms")
+	dbSpan1 := sentry.StartSpan(span.Context(), "[DB] Get from /forms")
 	res, err := es.Client().Search().Index("forms").Query(FormDetails(FormData.FormID)).Size(1).
 		FetchSourceContext(elastic.NewFetchSourceContext(true)).Do(ctx)
 	dbSpan1.Finish()
@@ -38,7 +38,7 @@ func GetForm(ctx context.Context, FormData *requests.GetForm, sentryCtx context.
 		}
 	}
 
-	dbSpan2 := sentry.StartSpan(span.Context(), "[DB] Insert into /forms")
+	dbSpan2 := sentry.StartSpan(span.Context(), "[DB] Get from /questions")
 	res2, err := es.Client().Search().Index("questions").SearchSource(elastic.NewSearchSource().Query(elastic.NewMatchQuery("form", FormData.FormID)).Size(1000)).Size(1000).Do(ctx)
 	rescfg, _ := json.Marshal(elastic.NewSearchSource().Query(elastic.NewMatchQuery("Form", "sJeoD4EBP9dta9N7JaUi")).Size(1000))
 	fmt.Println(string(rescfg))

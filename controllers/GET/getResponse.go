@@ -14,7 +14,7 @@ import (
 
 func GetResponseHandler(c *gin.Context) {
 	defer sentry.Recover()
-	span := sentry.StartSpan(context.TODO(), "[GIN] AddResponseHandler", sentry.TransactionName("Create Response Handler"))
+	span := sentry.StartSpan(context.TODO(), "[GIN] GetResponseHandler", sentry.TransactionName("Get Response Handler"))
 	defer span.Finish()
 
 	responseRequest := requests.GetResponse{}

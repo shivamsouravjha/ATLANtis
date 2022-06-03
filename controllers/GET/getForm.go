@@ -14,7 +14,7 @@ import (
 
 func GetFormHandler(c *gin.Context) {
 	defer sentry.Recover()
-	span := sentry.StartSpan(context.TODO(), "[GIN] AddFormHandler", sentry.TransactionName("Create Form Handler"))
+	span := sentry.StartSpan(context.TODO(), "[GIN] GetFormHandler", sentry.TransactionName("Get Form Handler"))
 	defer span.Finish()
 
 	formRequest := requests.GetForm{}

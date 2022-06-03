@@ -5,6 +5,7 @@ import (
 	"Atlantis/services/es"
 	"Atlantis/services/logger"
 	"Atlantis/structs/requests"
+	"fmt"
 
 	"context"
 
@@ -15,10 +16,9 @@ import (
 
 func GetAny(ctx context.Context, AnyData *requests.AnyHandler, sentryCtx context.Context) ([]interface{}, error) {
 	defer sentry.Recover()
-	span := sentry.StartSpan(sentryCtx, "[DAO] AddForm")
+	span := sentry.StartSpan(sentryCtx, "[DAO] GetAny")
 	defer span.Finish()
-
-	dbSpan1 := sentry.StartSpan(span.Context(), "[DB] Insert into /forms")
+	dbSpan1 := sentry.StartSpan(span.Context(), fmt.Sprintf("[DB] Get from %v", AnyData.Index))
 	res, err := es.Client().Search().Index(constants.IndexElasticSearch[AnyData.Index]).Query(QueryDetails(AnyData.Param, AnyData.Value)).Size(1000).
 		FetchSourceContext(elastic.NewFetchSourceContext(true)).Do(ctx)
 	dbSpan1.Finish()

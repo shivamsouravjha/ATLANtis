@@ -16,10 +16,10 @@ import (
 
 func GetResponse(ctx context.Context, ResponseData *requests.GetResponse, isUpdate bool, sentryCtx context.Context) (response.Response, error) {
 	defer sentry.Recover()
-	span := sentry.StartSpan(sentryCtx, "[DAO] AddResponse")
+	span := sentry.StartSpan(sentryCtx, "[DAO] GetResponse")
 	defer span.Finish()
 
-	dbSpan1 := sentry.StartSpan(span.Context(), "[DB] Insert into /forms")
+	dbSpan1 := sentry.StartSpan(span.Context(), "[DB] Get from /responses")
 	res, err := es.Client().Search().Index("responses").Query(ResponseDetails(ResponseData.ResponseId)).Size(1).
 		FetchSourceContext(elastic.NewFetchSourceContext(true)).Do(ctx)
 	dbSpan1.Finish()
@@ -32,7 +32,7 @@ func GetResponse(ctx context.Context, ResponseData *requests.GetResponse, isUpda
 	var data1 requests.Response
 	if res != nil {
 		for _, s := range res.Hits.Hits {
-			err = jsoniter.ConfigCompatibleWithStandardLibrary.Unmarshal(s.Source, &data1)
+			jsoniter.ConfigCompatibleWithStandardLibrary.Unmarshal(s.Source, &data1)
 			fmt.Println(data1)
 		}
 	}
@@ -40,7 +40,7 @@ func GetResponse(ctx context.Context, ResponseData *requests.GetResponse, isUpda
 	questionsAnswer := make(map[string]requests.Answer)
 	unitQuestionsAnswer := response.UnitResponse{}
 
-	dbSpan2 := sentry.StartSpan(span.Context(), "[DB] Insert into /forms")
+	dbSpan2 := sentry.StartSpan(span.Context(), "[DB] Get from /answers")
 	res2, err := es.Client().Search().Index("answers").SearchSource(elastic.NewSearchSource().Query(elastic.NewMatchQuery("responseId", ResponseData.ResponseId)).Size(1000)).Size(1000).Do(ctx)
 	rescfg, _ := json.Marshal(elastic.NewSearchSource().Query(elastic.NewMatchQuery("responseId", ResponseData.ResponseId)).Size(1000))
 	fmt.Println(string(rescfg))
@@ -57,12 +57,11 @@ func GetResponse(ctx context.Context, ResponseData *requests.GetResponse, isUpda
 	if res2 != nil {
 		for _, s := range res2.Hits.Hits {
 			jsoniter.ConfigCompatibleWithStandardLibrary.Unmarshal(s.Source, &temp)
-			fmt.Println(temp.AnswerID)
 			questionsAnswer[temp.QuestionID] = temp
 		}
 	}
 
-	dbSpan3 := sentry.StartSpan(span.Context(), "[DB] Insert into /forms")
+	dbSpan3 := sentry.StartSpan(span.Context(), "[DB] Get from /questions")
 	res3, err := es.Client().Search().Index("questions").SearchSource(elastic.NewSearchSource().Query(elastic.NewMatchQuery("form", data1.FormID))).Do(ctx)
 	rescfg, _ = json.Marshal(elastic.NewSearchSource().Query(elastic.NewMatchQuery("form", temp.FormID)))
 	fmt.Println(string(rescfg))
