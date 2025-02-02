@@ -65,6 +65,7 @@ func init() {
 		fmt.Println("error loading env: ", e)
 		panic(e.Error())
 	}
+	fmt.Println("apple")
 	config.AppName = os.Getenv("SERVICE_NAME")
 	config.AppEnv = appEnv
 	config.SqlPrefix = "/* " + config.AppName + " - " + config.AppEnv + "*/"
