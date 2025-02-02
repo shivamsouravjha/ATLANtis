@@ -11,6 +11,7 @@ import (
 var clientConsumer *kafka.Consumer
 
 func NewConsumerClient(topicName string) (*kafka.Consumer, error) {
+	fmt.Println("apple")
 	consumer, err := kafka.NewConsumer(&kafka.ConfigMap{
 		"bootstrap.servers": config.Get().KafkaServer,
 		"group.id":          topicName,
